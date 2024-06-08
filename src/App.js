@@ -1,16 +1,13 @@
-// src/App.js
 import React from 'react';
-import DataDisplay from './components/DataComponent';
+import ApiForm from './components/ApiForm';  // 新しいコンポーネントをインポート
 import './App.css';
 
 function App() {
-    return (
-        <div className="App">
-            <header className="App-header">
-                <DataDisplay />
-            </header>
-        </div>
-    );
+  return (
+    <div className="app-container">
+      <ApiForm />  {/* 新しいコンポーネントを追加 */}
+    </div>
+  );
 }
 
 export default App;

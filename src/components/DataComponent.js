@@ -1,21 +1,23 @@
-// src/DataDisplay.js
 import React, { useState } from 'react';
+import axios from 'axios';
+import { Line } from 'react-chartjs-2';
+import * as htmlToImage from 'html-to-image';
+
+axios.defaults.baseURL = 'https://data-api2024.azurewebsites.net';
 
 const DataDisplay = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [marketplace, setMarketplace] = useState('');
+    const [collection, setCollection] = useState('');
 
     const fetchData = async () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch('https://data-api2024.azurewebsites.net/scrape');
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            setData(data);
+            const response = await axios.get(`/scrape?marketplace=${marketplace}&collection=${collection}`);
+            setData(response.data);
         } catch (error) {
             setError(error.message);
         } finally {
@@ -23,33 +25,51 @@ const DataDisplay = () => {
         }
     };
 
+    const generateXPost = (data) => {
+        return `Floor price: ${data.floor_price}, Total volume: ${data.total_volume}`;
+    };
+
+    const saveAsImage = async () => {
+        const node = document.getElementById('data-chart');
+        const dataUrl = await htmlToImage.toPng(node);
+        const link = document.createElement('a');
+        link.download = 'data-chart.png';
+        link.href = dataUrl;
+        link.click();
+    };
+
     return (
-        <div>
+        <div className="data-display">
             <h1>Data API Test</h1>
-            <button onClick={fetchData}>Fetch Data</button>
+            <input 
+                type="text" 
+                value={marketplace} 
+                onChange={(e) => setMarketplace(e.target.value)} 
+                placeholder="Enter Marketplace" 
+            />
+            <input 
+                type="text" 
+                value={collection} 
+                onChange={(e) => setCollection(e.target.value)} 
+                placeholder="Enter Collection" 
+            />
+            <button onClick={fetchData} className="fetch-button">Fetch Data</button>
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
             {data && (
                 <div>
-                    {Object.entries(data).map(([collectionName, collectionData]) => (
-                        <table key={collectionName} style={{ marginBottom: '20px', width: '100%', borderCollapse: 'collapse' }}>
-                            <caption style={{ textAlign: 'left', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.2em' }}>{collectionName}</caption>
-                            <thead>
-                                <tr>
-                                    {Object.keys(collectionData).map(key => (
-                                        <th key={key} style={{ border: '1px solid #ddd', padding: '8px', backgroundColor: '#f2f2f2' }}>{key}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    {Object.values(collectionData).map((value, index) => (
-                                        <td key={index} style={{ border: '1px solid #ddd', padding: '8px' }}>{value}</td>
-                                    ))}
-                                </tr>
-                            </tbody>
-                        </table>
-                    ))}
+                    <Line 
+                        id="data-chart"
+                        data={{
+                            labels: data.intervals.map(interval => interval.interval),
+                            datasets: [{
+                                label: 'Volume',
+                                data: data.intervals.map(interval => interval.volume),
+                            }]
+                        }}
+                    />
+                    <button onClick={saveAsImage} className="save-button">Save as Image</button>
+                    <p>{generateXPost(data)}</p>
                 </div>
             )}
         </div>
