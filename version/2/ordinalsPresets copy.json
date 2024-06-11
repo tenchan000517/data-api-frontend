@@ -11,6 +11,13 @@
     { "type": "ordinals", "collectionSymbol": "omb" },
     { "type": "ordinals", "collectionSymbol": "goosinals_" },
     { "type": "ordinals", "collectionSymbol": "dogepunks" },
-    { "type": "ordinals", "collectionSymbol": "NodeMonkes" }
+    { "type": "ordinals", "collectionSymbol": "NodeMonkes" },
+    { "type": "ordinals", "collectionSymbol": "Bitcoin Punks" },
+{ "type": "ordinals", "collectionSymbol": "Pixel Pepes" },
+{ "type": "ordinals", "collectionSymbol": "BTC Machines" },
+{ "type": "ordinals", "collectionSymbol": "Pepe Ordinals Maxi" },
+{ "type": "ordinals", "collectionSymbol": "Ordinals Cartel" },
+{ "type": "ordinals", "collectionSymbol": "Planetary Ordinals" },
+{ "type": "ordinals", "collectionSymbol": "Space pepes" }
   ]
 }

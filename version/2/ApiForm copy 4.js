@@ -17,47 +17,28 @@ const ApiForm = () => {
   const [type, setType] = useState('nft');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isPreset, setIsPreset] = useState(false);
-  const [chain, setChain] = useState('ethereum');  // 初期チェーン名を設定
-
-  const chainIdToName = (chainId) => {
-    switch (chainId) {
-      case 1:
-        return 'ethereum';
-      case 137:
-        return 'polygon';
-      case 250:
-        return 'fantom';
-      case 43114:
-        return 'avalanche';
-      // 他のチェーンIDに対するケースを追加
-      default:
-        return 'ethereum';
-    }
-  };
+  const [isPreset, setIsPreset] = useState(false);  // 追加
+  const [chain, setChain] = useState('ETH');  // Chainを管理するための状態を追加
 
   const handleTypeChange = (event) => {
     setType(event.target.value);
-    setResult(null);
+    setResult(null); // タイプ変更時にデータをリセット
   };
 
-  const handleFetchData = async (fetchFunction, presetFlag = false) => {
-    console.log('handleFetchData - presetFlag:', presetFlag);
+  const handleFetchData = async (fetchFunction, presetFlag = false) => {  // 変更
+    console.log('handleFetchData - presetFlag:', presetFlag);  // ログ追加
 
     setLoading(true);
-    setIsPreset(presetFlag);
-    console.log('handleFetchData - isPreset set to:', presetFlag);
+    setIsPreset(presetFlag);  // 追加
+    console.log('handleFetchData - isPreset set to:', presetFlag);  // ログ追加
 
     try {
       const data = await fetchFunction();
-      console.log('Fetched data:', data);
-
       setResult(data);
       if (data.collections && data.collections.length > 0) {
-        const chainId = data.collections[0].chainId;
-        const chainName = chainIdToName(chainId);
-        setChain(chainName);
-        console.log('Fetched chain:', chainName);
+        setChain(data.collections[0].chain || 'ETH'); // chain情報をセット
+        console.log('Fetched chain:', data.collections[0].chain || 'ETH');  // ロギング追加
+
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -71,7 +52,7 @@ const ApiForm = () => {
     switch (type) {
       case 'collections':
       case 'nft':
-        return item.floorAsk?.price?.currency?.symbol || getCurrencyFromChain(item.chain || 'ethereum');
+        return item.floorAsk?.price?.currency?.symbol || getCurrencyFromChain(item.chain || 'ETH');
       case 'ordinals':
         return item.currency || item.fpListingCurrency || 'BTC';
       case 'brc20':
@@ -87,9 +68,10 @@ const ApiForm = () => {
         return 'MATIC';
       case 'solana':
         return 'SOL';
-      case 'ethereum':
-        return 'ETH';
-      // 他のチェーン名に対するケースを追加
+      case 'aster':
+        return 'ASTR';
+      case 'asterzkevm':
+        return 'ASTRzkEVM';
       default:
         return 'ETH';
     }
@@ -97,7 +79,7 @@ const ApiForm = () => {
 
   const transformData = (data, type) => {
     let collections = [];
-
+  
     if (type === 'collections' || type === 'nft') {
       if (data.collections) {
         collections = data.collections;
@@ -107,17 +89,17 @@ const ApiForm = () => {
         console.error('Expected collections to be an array but received:', data);
         return [];
       }
-
+  
       return collections.map(collection => {
         const priceChange = collection.floorSaleChange || {};
-        const currency = getCurrencyFromChain(collection.chain || 'ethereum');
+        const currency = getCurrencyFromChain(collection.chain || 'ETH');
         const listRate = collection.tokenCount && collection.onSaleCount ? ((collection.onSaleCount / collection.tokenCount) * 100).toFixed(2) : '－';
         const marketCap = collection.volume?.allTime 
           ? `${collection.volume.allTime.toLocaleString()} ${currency}`
           : collection.tokenCount && collection.floorSale?.["1day"]
             ? `${(collection.tokenCount * collection.floorSale["1day"]).toLocaleString()} ${currency}`
             : "－";
-
+  
         return {
           "コレクション": collection.name || "－",
           "フロアプライス": collection.floorSale?.["1day"] ? `${collection.floorSale["1day"].toLocaleString()} ${currency}` : "－",
@@ -132,7 +114,7 @@ const ApiForm = () => {
         };
       });
     }
-
+  
     if (type === 'ordinals') {
       return data.map(item => {
         const currency = getCurrency(type, item);
@@ -149,7 +131,7 @@ const ApiForm = () => {
         };
       });
     }
-
+  
     if (type === 'brc20') {
       return data.map(item => {
         const marketCap = item.market_data?.market_cap?.usd 
@@ -164,17 +146,19 @@ const ApiForm = () => {
           "1DAY Volume": item.market_data?.total_volume?.usd ? `$${item.market_data.total_volume.usd.toLocaleString()}` : "－",
           "供給数": item.market_data?.max_supply ? item.market_data.max_supply.toLocaleString() : "－",
           "1DAY": item.market_data?.price_change_percentage_24h_in_currency?.usd ? `${item.market_data.price_change_percentage_24h_in_currency.usd.toFixed(2)}%` : "－",
-        //   "1WEEK": item.market_data?.price_change_percentage_7d_in_currency?.usd ? `${item.market_data.price_change_percentage_7d_in_currency.usd.toFixed(2)}%` : "－",
+          "1WEEK": item.market_data?.price_change_percentage_7d_in_currency?.usd ? `${item.market_data.price_change_percentage_7d_in_currency.usd.toFixed(2)}%` : "－",
           "1MONTH": item.market_data.price_change_percentage_30d_in_currency?.usd ? `${item.market_data.price_change_percentage_30d_in_currency.usd.toFixed(2)}%` : "－",
           "買い圧・売り圧": item.tickers?.[0]?.bid_ask_spread_percentage ? `${item.tickers[0].bid_ask_spread_percentage.toFixed(2)}%` : "－",
           "対USDT価格": item.tickers?.[0]?.converted_last?.usd ? `$${item.tickers[0].converted_last.usd.toLocaleString()}` : "－",
           "総取引高 (BTC)": item.market_data?.total_volume?.btc ? `${item.market_data.total_volume.btc.toLocaleString()} BTC` : "－",
+          "総取引高 (ETH)": item.market_data?.total_volume?.eth ? `${item.market_data.total_volume.eth.toLocaleString()} ETH` : "－",
         };
       });
     }
-
+  
     return data;
   };
+  
 
   return (
     <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
@@ -184,7 +168,7 @@ const ApiForm = () => {
         <Select
           labelId="type-label"
           value={type}
-          onChange={handleTypeChange}
+          onChange={handleTypeChange} // タイプ変更時にデータをリセット
         >
           <MenuItem value="nft">NFT</MenuItem>
           <MenuItem value="ordinals">Ordinals</MenuItem>
@@ -194,19 +178,19 @@ const ApiForm = () => {
 
       {type === 'nft' && (
         <NftForm onFetchData={(fetchFunc, isPreset) => {
-          console.log('NftForm - onFetchData called with isPreset:', isPreset);
+          console.log('NftForm - onFetchData called with isPreset:', isPreset);  // ログ追加
           handleFetchData(fetchFunc, isPreset);
         }} loading={loading} />
       )}
       {type === 'ordinals' && (
-        <OrdinalsForm onFetchData={(fetchFunc) => handleFetchData(fetchFunc, true)} loading={loading} />
+        <OrdinalsForm onFetchData={(fetchFunc) => handleFetchData(fetchFunc, true)} loading={loading} />  // 変更
       )}
       {type === 'brc20' && (
-        <Brc20Form onFetchData={(fetchFunc) => handleFetchData(fetchFunc, true)} loading={loading} presets={presetsData} />
+        <Brc20Form onFetchData={(fetchFunc) => handleFetchData(fetchFunc, true)} loading={loading} presets={presetsData} />  // 変更
       )}
 
       {result && (
-        <DataDisplay data={transformData(result, type)} type={type} isPreset={isPreset} chain={chain} />
+        <DataDisplay data={transformData(result, type)} type={type} isPreset={isPreset} />  // 変更
       )}
     </Box>
   );
