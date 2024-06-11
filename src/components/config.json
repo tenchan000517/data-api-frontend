@@ -1,0 +1,80 @@
+{
+    "types": ["nft", "erc20", "ordinals", "brc20", "solana", "collections", "pair"],
+    "chains": ["ethereum", "polygon", "solana", "bitcoin", "binance", "base", "aster", "astergkevm"],
+    "transformations": {
+      "collections": {
+        "トークン名/コレクション名": "collections[0].name",
+        "シンボル": "collections[0].symbol",
+        "現在価格": "collections[0].floorAsk.price.usd",
+        "時価総額": "collections[0].market_cap",
+        "24時間取引高": "collections[0].volume['1day']",
+        "発行量": "collections[0].tokenCount",
+        "最大供給量": "collections[0].max_supply",
+        "ホルダー数": "collections[0].ownerCount",
+        "取引回数": "collections[0].trade_count",
+        "価格変動": {
+          "24時間": "collections[0].floorSaleChange['1day']",
+          "7日間": "collections[0].floorSaleChange['7day']",
+          "30日間": "collections[0].floorSaleChange['30day']"
+        },
+        "買い圧・売り圧": "collections[0].order_book",
+        "主要取引所": "collections[0].exchanges",
+        "デベロッパー活動": "collections[0].developer_activity",
+        "コミュニティエンゲージメント": "collections[0].community_engagement",
+        "対USDTの金額": "collections[0].price_usdt",
+        "対日本円": "collections[0].price_jpy",
+        "フロアプライス": "collections[0].floorAsk.price.usd",
+        "24時間の売買数及び売上高": "collections[0].sales_volume_24h",
+        "マーケットキャップ": "collections[0].market_cap",
+        "前日差（フロア価格）": "collections[0].floor_price_change_24h",
+        "供給数": "collections[0].tokenCount",
+        "所有者数": "collections[0].ownerCount",
+        "リスト数": "collections[0].list_count"
+      },
+      "ordinals": {
+        "コレクションID": "collectionId",
+        "コレクションシンボル": "collectionSymbol",
+        "通貨": "currency",
+        "USDレート": "currencyUsdRate",
+        "フロア価格": "fp",
+        "フロア価格（通貨）": "fpListingCurrency",
+        "フロア価格（値段）": "fpListingPrice",
+        "フロア価格の変動率": "fpPctChg",
+        "画像": "image",
+        "リスト数": "listedCount",
+        "時価総額": "marketCap",
+        "時価総額（USD）": "marketCapUsd",
+        "名前": "name",
+        "保有者数": "ownerCount",
+        "供給数": "totalSupply",
+        "取引量": "totalVol",
+        "取引数": "txns",
+        "取引数の変動率": "txnsPctChg",
+        "ユニーク保有者比率": "uniqueOwnerRatio",
+        "取引量の変動率": "volPctChg"
+      },
+      "brc20": {
+        "トークン名": "name",
+        "シンボル": "symbol",
+        "現在価格": "market_data.current_price.usd",
+        "時価総額": "market_data.market_cap.usd",
+        "24時間取引高": "market_data.total_volume.usd",
+        "発行量": "market_data.circulating_supply",
+        "最大供給量": "market_data.max_supply",
+        "ホルダー数": "community_data.reddit_subscribers",
+        "取引回数": "tickers.length",
+        "価格変動": {
+          "24時間": "market_data.price_change_percentage_24h",
+          "7日間": "market_data.price_change_percentage_7d",
+          "30日間": "market_data.price_change_percentage_30d"
+        },
+        "買い圧・売り圧": "tickers[0].bid_ask_spread_percentage",
+        "主要取引所": "tickers[0].market.name",
+        "デベロッパー活動": "developer_data.commit_count_4_weeks",
+        "コミュニティエンゲージメント": "community_data.twitter_followers",
+        "対USDTの金額": "market_data.current_price.usdt",
+        "対日本円": "market_data.current_price.jpy"
+      }
+    }
+  }
+  

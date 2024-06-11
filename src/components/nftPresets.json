@@ -1,0 +1,16 @@
+{
+    "presets": [
+      {
+        "chain": "ethereum",
+        "collectionSlug": "musubicollection"
+      },
+      {
+        "chain": "ethereum",
+        "collectionSlug": "paogene"
+      },
+      {
+        "chain": "ethereum",
+        "collectionSlug": "cryptoninjapartners-v2"
+      }
+    ]
+  }

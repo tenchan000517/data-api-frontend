@@ -46,9 +46,11 @@ const ApiForm = () => {
     let collections = [];
   
     if (type === 'collections' || type === 'nft') {
+      // 個別取得の場合
       if (data.collections) {
         collections = data.collections;
       } else if (Array.isArray(data)) {
+        // プリセット取得の場合
         collections = data;
       } else {
         console.error('Expected collections to be an array but received:', data);
@@ -57,39 +59,38 @@ const ApiForm = () => {
   
       return collections.map(collection => {
         const priceChange = collection.floorSaleChange || {};
-        const currency = collection.floorAsk?.price?.currency?.symbol || 'ETH';  // 通貨単位を取得
         return {
-          "トークン名/コレクション名": collection.name || "－",
-          "フロアプライス": collection.floorSale?.["1day"] ? `${collection.floorSale["1day"].toLocaleString()} ${currency}` : "－",
-          "時価総額": collection.volume?.allTime ? `${collection.volume.allTime.toLocaleString()} ${currency}` : "－",
-          "24時間取引高": collection.volume?.["1day"] ? `${collection.volume["1day"].toLocaleString()} ${currency}` : "－",
-          "最大供給量": collection.tokenCount ? collection.tokenCount.toLocaleString() : "－",
-          "ホルダー数": collection.ownerCount ? collection.ownerCount.toLocaleString() : "－",
-          "価格変動（24時間）": priceChange["1day"] ? `${priceChange["1day"].toFixed(2)}%` : "－",
-          "価格変動（7日間）": priceChange["7day"] ? `${priceChange["7day"].toFixed(2)}%` : "－",
-          "価格変動（30日間）": priceChange["30day"] ? `${priceChange["30day"].toFixed(2)}%` : "－",
-          "前日差（フロア価格）": priceChange["1day"] ? `${priceChange["1day"].toFixed(2)}%` : "－",
-          "リスト数": collection.onSaleCount ? collection.onSaleCount.toLocaleString() : "－",
-        };
-      });
-    }
-  
-    if (type === 'ordinals') {
-      return data.map(item => ({
-        "コレクションID": item.collectionId || "－",
-        "フロア価格": item.fp ? `${item.fp.toLocaleString()} BTC` : "－",
-        "フロア価格（値段）": item.fpListingPrice ? `${item.fpListingPrice.toLocaleString()} BTC` : "－",
-        "フロア価格の変動率": item.fpPctChg ? `${item.fpPctChg.toFixed(2)}%` : "－",
-        "時価総額": item.marketCap ? `${item.marketCap.toLocaleString()} BTC` : "－",
-        "時価総額（USD）": item.marketCapUsd ? `$${item.marketCapUsd.toLocaleString()}` : "－",
-        "保有者数": item.ownerCount ? item.ownerCount.toLocaleString() : "－",
-        "供給数": item.totalSupply ? item.totalSupply.toLocaleString() : "－",
-        "取引量": item.totalVol ? item.totalVol.toLocaleString() : "－",
-        "取引量の変動率": item.volPctChg ? `${item.volPctChg.toFixed(2)}%` : "－",
-        "USDレート": item.currencyUsdRate ? `$${item.currencyUsdRate.toFixed(2)}` : "－",
-      }));
-    }
-  
+            "トークン名/コレクション名": collection.name || "－",
+            "フロアプライス": collection.floorSale?.["1day"] ? `$${collection.floorSale["1day"].toLocaleString()}` : "－",
+            "時価総額": collection.volume?.allTime ? `$${collection.volume.allTime.toLocaleString()}` : "－",
+            "24時間取引高": collection.volume?.["1day"] ? `$${collection.volume["1day"].toLocaleString()}` : "－",
+            "最大供給量": collection.tokenCount ? collection.tokenCount.toLocaleString() : "－",
+            "ホルダー数": collection.ownerCount ? collection.ownerCount.toLocaleString() : "－",
+            "価格変動（24時間）": priceChange["1day"] ? `${priceChange["1day"].toFixed(2)}%` : "－",
+            "価格変動（7日間）": priceChange["7day"] ? `${priceChange["7day"].toFixed(2)}%` : "－",
+            "価格変動（30日間）": priceChange["30day"] ? `${priceChange["30day"].toFixed(2)}%` : "－",
+            "前日差（フロア価格）": priceChange["1day"] ? `${priceChange["1day"].toFixed(2)}%` : "－",
+            "リスト数": collection.onSaleCount ? collection.onSaleCount.toLocaleString() : "－",
+          };
+        });
+      }
+    
+      if (type === 'ordinals') {
+        return data.map(item => ({
+          "コレクションID": item.collectionId || "－",
+          "フロア価格": item.fp ? `$${item.fp.toLocaleString()}` : "－",
+          "フロア価格（値段）": item.fpListingPrice ? `$${item.fpListingPrice.toLocaleString()}` : "－",
+          "フロア価格の変動率": item.fpPctChg ? `${item.fpPctChg.toFixed(2)}%` : "－",
+          "時価総額": item.marketCap ? `$${item.marketCap.toLocaleString()}` : "－",
+          "時価総額（USD）": item.marketCapUsd ? `$${item.marketCapUsd.toLocaleString()}` : "－",
+          "保有者数": item.ownerCount ? item.ownerCount.toLocaleString() : "－",
+          "供給数": item.totalSupply ? item.totalSupply.toLocaleString() : "－",
+          "取引量": item.totalVol ? item.totalVol.toLocaleString() : "－",
+          "取引量の変動率": item.volPctChg ? `${item.volPctChg.toFixed(2)}%` : "－",
+          "USDレート": item.currencyUsdRate ? `$${item.currencyUsdRate.toFixed(2)}` : "－",
+        }));
+      }
+
     if (type === 'brc20') {
       return data.map(item => ({
         "トークン名": item.name || "－",
@@ -104,10 +105,9 @@ const ApiForm = () => {
         "主要取引所": item.tickers?.[0]?.market?.name || "－",
         "対USDT価格": item.tickers?.[0]?.converted_last?.usd ? `$${item.tickers[0].converted_last.usd.toLocaleString()}` : "－",
         "総取引高 (BTC)": item.market_data?.total_volume?.btc ? `${item.market_data.total_volume.btc.toLocaleString()} BTC` : "－",
-        "総取引高 (ETH)": item.market_data?.total_volume?.eth ? `${item.market_data.total_volume.eth.toLocaleString()} ETH` : "－",
       }));
     }
-  
+
     return data;
   };
 

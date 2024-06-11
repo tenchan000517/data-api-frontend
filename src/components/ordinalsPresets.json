@@ -1,0 +1,23 @@
+{
+  "ordinals": [
+    { "type": "ordinals", "collectionSymbol": "Bitcoin puppets" },
+    { "type": "ordinals", "collectionSymbol": "Runestone" },
+    { "type": "ordinals", "collectionSymbol": "Bitmap" },
+    { "type": "ordinals", "collectionSymbol": "RSIC METAPROTOCOL" },
+    { "type": "ordinals", "collectionSymbol": "Bitcoin Punks" },
+    { "type": "ordinals", "collectionSymbol": "Prometheans" },
+    { "type": "ordinals", "collectionSymbol": "Frucks" },
+    { "type": "ordinals", "collectionSymbol": "Bitcoin Trumps" },
+    { "type": "ordinals", "collectionSymbol": "Pepe Ordinals Maxi" },
+    { "type": "ordinals", "collectionSymbol": "Bitcoin Frogs" },
+    { "type": "ordinals", "collectionSymbol": "Ordinals Maxi Biz" },
+    { "type": "ordinals", "collectionSymbol": "Pixel Pepes" },
+    { "type": "ordinals", "collectionSymbol": "Space pepes" },
+    { "type": "ordinals", "collectionSymbol": "Goosinals" },
+    { "type": "ordinals", "collectionSymbol": "DogePunks" },
+    { "type": "ordinals", "collectionSymbol": "BTC Machines" },
+    { "type": "ordinals", "collectionSymbol": "Ordinals Cartel" },
+    { "type": "ordinals", "collectionSymbol": "Planetary Ordinals" },
+    { "type": "ordinals", "collectionSymbol": "NodeMonkes" }
+  ]
+}

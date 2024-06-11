@@ -1,0 +1,124 @@
+{
+    "brc20①": [
+      {
+        "name": "BRC20 Token 1",
+        "symbol": "uncommongoods",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x1234...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 2",
+        "symbol": "dog•go•to•the•moon",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 4",
+        "symbol": "✖",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 5",
+        "symbol": "rsic",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+
+
+      {
+        "name": "BRC20 Token 6",
+        "symbol": "pups",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 7",
+        "symbol": "🏦",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 8",
+        "symbol": "💥",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 9",
+        "symbol": "丰",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 10",
+        "symbol": "丰",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 11",
+        "symbol": "lobo•the•wolf•pup",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 12",
+        "symbol": "ᚠ",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 13",
+        "symbol": "$cats",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      },
+      {
+        "name": "BRC20 Token 14",
+        "symbol": "memerune",
+        "type": "brc20",
+        "chain": "bitcoin",
+        "contractAddress": "0x5678...",
+        "offset": 0,
+        "limit": 20
+      }
+    ]
+  }
+  

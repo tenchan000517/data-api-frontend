@@ -17,20 +17,14 @@ const ApiForm = () => {
   const [type, setType] = useState('nft');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isPreset, setIsPreset] = useState(false);  // 追加
 
   const handleTypeChange = (event) => {
     setType(event.target.value);
     setResult(null); // タイプ変更時にデータをリセット
   };
 
-  const handleFetchData = async (fetchFunction, presetFlag = false) => {  // 変更
-    console.log('handleFetchData - presetFlag:', presetFlag);  // ログ追加
-
+  const handleFetchData = async (fetchFunction) => {
     setLoading(true);
-    setIsPreset(presetFlag);  // 追加
-    console.log('handleFetchData - isPreset set to:', presetFlag);  // ログ追加
-
     try {
       const data = await fetchFunction();
       setResult(data);
@@ -43,60 +37,72 @@ const ApiForm = () => {
   };
 
   const transformData = (data, type) => {
-    let collections = [];
-  
     if (type === 'collections' || type === 'nft') {
-      if (data.collections) {
-        collections = data.collections;
-      } else if (Array.isArray(data)) {
-        collections = data;
-      } else {
-        console.error('Expected collections to be an array but received:', data);
+      if (!Array.isArray(data.collections)) {
+        console.error('Expected data.collections to be an array but received:', data.collections);
         return [];
       }
-  
-      return collections.map(collection => {
+      return data.collections.map(collection => {
         const priceChange = collection.floorSaleChange || {};
-        const currency = collection.floorAsk?.price?.currency?.symbol || 'ETH';  // 通貨単位を取得
         return {
           "トークン名/コレクション名": collection.name || "－",
-          "フロアプライス": collection.floorSale?.["1day"] ? `${collection.floorSale["1day"].toLocaleString()} ${currency}` : "－",
-          "時価総額": collection.volume?.allTime ? `${collection.volume.allTime.toLocaleString()} ${currency}` : "－",
-          "24時間取引高": collection.volume?.["1day"] ? `${collection.volume["1day"].toLocaleString()} ${currency}` : "－",
-          "最大供給量": collection.tokenCount ? collection.tokenCount.toLocaleString() : "－",
-          "ホルダー数": collection.ownerCount ? collection.ownerCount.toLocaleString() : "－",
-          "価格変動（24時間）": priceChange["1day"] ? `${priceChange["1day"].toFixed(2)}%` : "－",
-          "価格変動（7日間）": priceChange["7day"] ? `${priceChange["7day"].toFixed(2)}%` : "－",
-          "価格変動（30日間）": priceChange["30day"] ? `${priceChange["30day"].toFixed(2)}%` : "－",
-          "前日差（フロア価格）": priceChange["1day"] ? `${priceChange["1day"].toFixed(2)}%` : "－",
-          "リスト数": collection.onSaleCount ? collection.onSaleCount.toLocaleString() : "－",
+          "シンボル": collection.symbol || "－",
+          "フロアプライス": collection.floorSale?.["1day"] || "－",
+          "時価総額": collection.volume?.allTime || "－",
+          "24時間取引高": collection.volume?.["1day"] || "－",
+          "最大供給量": collection.tokenCount || "－",
+          "ホルダー数": collection.ownerCount || "－",
+          "取引回数": collection.trade_count || "－",
+          "価格変動（24時間）": priceChange["1day"] || "－",
+          "価格変動（7日間）": priceChange["7day"] || "－",
+          "価格変動（30日間）": priceChange["30day"] || "－",
+          "対USDTの金額": collection.floorAsk?.price?.usd || "－",
+          "対日本円": collection.price_jpy || "－",
+          "24時間の売買数及び売上高": collection.sales_volume_24h || "－",
+          "マーケットキャップ": collection.volume?.allTime || "－",
+          "前日差（フロア価格）": priceChange["1day"] || "－",
+          "供給数": collection.tokenCount || "－",
+          "所有者数": collection.ownerCount || "－",
+          "リスト数": collection.onSaleCount || "－",
         };
       });
     }
-  
+
     if (type === 'ordinals') {
       return data.map(item => ({
         "コレクションID": item.collectionId || "－",
-        "フロア価格": item.fp ? `${item.fp.toLocaleString()} BTC` : "－",
-        "フロア価格（値段）": item.fpListingPrice ? `${item.fpListingPrice.toLocaleString()} BTC` : "－",
-        "フロア価格の変動率": item.fpPctChg ? `${item.fpPctChg.toFixed(2)}%` : "－",
-        "時価総額": item.marketCap ? `${item.marketCap.toLocaleString()} BTC` : "－",
-        "時価総額（USD）": item.marketCapUsd ? `$${item.marketCapUsd.toLocaleString()}` : "－",
-        "保有者数": item.ownerCount ? item.ownerCount.toLocaleString() : "－",
-        "供給数": item.totalSupply ? item.totalSupply.toLocaleString() : "－",
-        "取引量": item.totalVol ? item.totalVol.toLocaleString() : "－",
-        "取引量の変動率": item.volPctChg ? `${item.volPctChg.toFixed(2)}%` : "－",
-        "USDレート": item.currencyUsdRate ? `$${item.currencyUsdRate.toFixed(2)}` : "－",
+        "コレクションシンボル": item.collectionSymbol || "－",
+        "通貨": item.currency || "－",
+        "USDレート": item.currencyUsdRate || "－",
+        "フロア価格": item.fp || "－",
+        "フロア価格（通貨）": item.fpListingCurrency || "－",
+        "フロア価格（値段）": item.fpListingPrice || "－",
+        "フロア価格の変動率": item.fpPctChg || "－",
+        "画像": item.image || "－",
+        "リスト数": item.listedCount || "－",
+        "時価総額": item.marketCap || "－",
+        "時価総額（USD）": item.marketCapUsd || "－",
+        "名前": item.name || "－",
+        "保有者数": item.ownerCount || "－",
+        "供給数": item.totalSupply || "－",
+        "取引量": item.totalVol || "－",
+        "取引数": item.txns || "－",
+        "取引数の変動率": item.txnsPctChg || "－",
+        "ユニーク保有者比率": item.uniqueOwnerRatio || "－",
+        "取引量の変動率": item.volPctChg || "－"
       }));
     }
-  
+
     if (type === 'brc20') {
       return data.map(item => ({
         "トークン名": item.name || "－",
+        "シンボル": item.symbol || "－",
         "現在価格": item.market_data?.current_price?.usd ? `$${item.market_data.current_price.usd.toLocaleString()}` : "－",
         "時価総額": item.market_data?.market_cap?.usd ? `$${item.market_data.market_cap.usd.toLocaleString()}` : "－",
         "24時間取引高": item.market_data?.total_volume?.usd ? `$${item.market_data.total_volume.usd.toLocaleString()}` : "－",
+        "発行量": item.market_data?.circulating_supply ? item.market_data.circulating_supply.toLocaleString() : "－",
         "最大供給量": item.market_data?.max_supply ? item.market_data.max_supply.toLocaleString() : "－",
+        "取引回数": item.tickers?.length ? item.tickers.length.toLocaleString() : "－",
         "24時間価格変動率": item.market_data?.price_change_percentage_24h_in_currency?.usd ? `${item.market_data.price_change_percentage_24h_in_currency.usd.toFixed(2)}%` : "－",
         "7日間価格変動率": item.market_data?.price_change_percentage_7d_in_currency?.usd ? `${item.market_data.price_change_percentage_7d_in_currency.usd.toFixed(2)}%` : "－",
         "30日間価格変動率": item.market_data.price_change_percentage_30d_in_currency?.usd ? `${item.market_data.price_change_percentage_30d_in_currency.usd.toFixed(2)}%` : "－",
@@ -107,7 +113,7 @@ const ApiForm = () => {
         "総取引高 (ETH)": item.market_data?.total_volume?.eth ? `${item.market_data.total_volume.eth.toLocaleString()} ETH` : "－",
       }));
     }
-  
+
     return data;
   };
 
@@ -128,20 +134,19 @@ const ApiForm = () => {
       </FormControl>
 
       {type === 'nft' && (
-        <NftForm onFetchData={(fetchFunc, isPreset) => {
-          console.log('NftForm - onFetchData called with isPreset:', isPreset);  // ログ追加
-          handleFetchData(fetchFunc, isPreset);
-        }} loading={loading} />
+        <NftForm onFetchData={handleFetchData} loading={loading} />
       )}
       {type === 'ordinals' && (
-        <OrdinalsForm onFetchData={(fetchFunc) => handleFetchData(fetchFunc, true)} loading={loading} />  // 変更
+        <OrdinalsForm onFetchData={handleFetchData} loading={loading} />
       )}
       {type === 'brc20' && (
-        <Brc20Form onFetchData={(fetchFunc) => handleFetchData(fetchFunc, true)} loading={loading} presets={presetsData} />  // 変更
+        <Brc20Form onFetchData={handleFetchData} loading={loading} presets={presetsData} />
       )}
 
-      {result && (
-        <DataDisplay data={transformData(result, type)} type={type} isPreset={isPreset} />  // 変更
+      {result && Array.isArray(result) ? (
+        <DataDisplay data={transformData(result, type)} type={type} />
+      ) : (
+        result && <DataDisplay data={transformData(result, type)} type={type} />
       )}
     </Box>
   );
