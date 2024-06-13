@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Grid, Card, CardHeader, Button } from '@mui/material';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Grid, Card, CardHeader, Button, Typography } from '@mui/material';
 import html2canvas from 'html2canvas';
 
 const DataDisplay = ({ data, type, isPreset, chain }) => {
@@ -60,19 +60,60 @@ const DataDisplay = ({ data, type, isPreset, chain }) => {
   };
 
   const handleExportClick = () => {
-    if (tableRef.current) {
-      html2canvas(tableRef.current).then((canvas) => {
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL();
-        link.download = 'data.png';
-        link.click();
-      });
-    }
+    const exportRef = document.createElement('div');
+    exportRef.style.padding = '20px';
+    exportRef.style.backgroundColor = 'white';
+
+    const title = document.createElement('div');
+    title.style.textAlign = 'left';
+    title.style.marginBottom = '20px';
+    title.style.marginLeft = '20px'; // 左端に接着しないように余白を追加
+    title.innerHTML = `
+      <div style="display: flex; align-items: center;">
+        <img src="/logo552.png" alt="logo" style="width: 40px; height: 40px; margin-right: 10px;" />
+        <h2 style="font-family: Arial, sans-serif; font-weight: bold; margin: 0; font-size: 1.25rem;">ZERO to ONE WEB3 Market Informations</h2>
+      </div>
+      <h3 style="font-family: Arial, sans-serif; font-weight: bold; margin: 10px 0; font-size: 1rem;">${getTitle(type, chain)}</h3>
+    `;
+
+    const tableContainer = tableRef.current.cloneNode(true);
+    exportRef.appendChild(title);
+    exportRef.appendChild(tableContainer);
+
+    document.body.appendChild(exportRef);
+
+    html2canvas(exportRef).then((canvas) => {
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL();
+      link.download = 'data.png';
+      link.click();
+      document.body.removeChild(exportRef);
+    });
   };
 
   const handleExportHtml = () => {
     if (tableRef.current) {
-      const html = tableRef.current.outerHTML;
+      const exportRef = document.createElement('div');
+      exportRef.style.padding = '20px';
+      exportRef.style.backgroundColor = 'white';
+
+      const title = document.createElement('div');
+      title.style.textAlign = 'left';
+      title.style.marginBottom = '20px';
+      title.style.marginLeft = '20px'; // 左端に接着しないように余白を追加
+      title.innerHTML = `
+        <div style="display: flex; align-items: center;">
+          <img src="/logo552.png" alt="logo" style="width: 40px; height: 40px; margin-right: 10px;" />
+          <h2 style="font-family: Arial, sans-serif; font-weight: bold; margin: 0; font-size: 1.25rem;">ZERO to ONE WEB3 Market Informations</h2>
+        </div>
+        <h3 style="font-family: Arial, sans-serif; font-weight: bold; margin: 10px 0; font-size: 1rem;">${getTitle(type, chain)}</h3>
+      `;
+
+      const tableContainer = tableRef.current.cloneNode(true);
+      exportRef.appendChild(title);
+      exportRef.appendChild(tableContainer);
+
+      const html = exportRef.outerHTML;
       const blob = new Blob([html], { type: 'text/html' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -135,7 +176,7 @@ const DataDisplay = ({ data, type, isPreset, chain }) => {
                         : 'inherit',
                       borderBottom: '1px solid #e0e0e0',
                       padding: '12px',
-                      width: '150px', // 固定幅を設定
+                      width: '150px', 
                     }}
                   >
                     {priceChangeKeys.includes(key) && typeof row[key] === 'string' && row[key] !== "－"
@@ -201,7 +242,19 @@ const DataDisplay = ({ data, type, isPreset, chain }) => {
       <Grid item xs={12}>
         <Card>
           <CardHeader
-            title={getTitle(type, chain)}
+            title={
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <img src="/logo552.png" alt="logo" style={{ width: '40px', height: '40px', marginRight: '10px' }} />
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', fontFamily: 'Arial, sans-serif', fontSize: '1.25rem' }}>
+                    ZERO to ONE WEB3 Market Informations
+                  </Typography>
+                </Box>
+                <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: '1.5rem' }}>
+                  {getTitle(type, chain)}
+                </Typography>
+              </Box>
+            }
             action={
               <>
                 <Button variant="contained" onClick={handleExportClick} style={{ marginRight: '8px' }}>
