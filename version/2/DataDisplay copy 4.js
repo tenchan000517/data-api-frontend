@@ -5,12 +5,27 @@ const DataDisplay = ({ data, type, isPreset }) => {
   console.log('DataDisplay - isPreset:', isPreset);
   console.log('DataDisplay - data:', data);
 
+  const getPriceChangeKey = (type) => {
+    switch (type) {
+      case 'collections':
+      case 'nft':
+        return '価格変動（24時間）';
+      case 'ordinals':
+        return 'フロア価格の変動率';
+      case 'brc20':
+        return '24時間価格変動率';
+      default:
+        return null;
+    }
+  };
+
   const renderData = (data) => {
     if (!data || data.length === 0) {
       return <div>No data available</div>;
     }
 
     const keys = Object.keys(data[0]);
+    const priceChangeKey = getPriceChangeKey(type);
 
     return (
       <TableContainer component={Paper}>
@@ -34,15 +49,15 @@ const DataDisplay = ({ data, type, isPreset }) => {
                         ? parseFloat(row[key]) > 0
                           ? 'green'
                           : 'red'
-                        : (key.includes('価格変動') && typeof row[key] === 'number')
-                          ? row[key] > 0
+                        : (key === priceChangeKey && typeof row[key] === 'string' && row[key] !== "－")
+                          ? parseFloat(row[key]) > 0
                             ? 'green'
                             : 'red'
                           : 'inherit'
                     }}
                   >
-                    {key.includes('価格変動') && typeof row[key] === 'number' 
-                      ? `${row[key] > 0 ? '▲' : '▼'}${Math.abs(row[key]).toFixed(2)}%`
+                    {key === priceChangeKey && typeof row[key] === 'string' && row[key] !== "－"
+                      ? `${parseFloat(row[key]) > 0 ? '△' : '▽'}${Math.abs(parseFloat(row[key])).toFixed(2)}%`
                       : (typeof row[key] === 'object' ? JSON.stringify(row[key]) : row[key])
                     }
                   </TableCell>

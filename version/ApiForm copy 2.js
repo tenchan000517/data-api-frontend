@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -24,14 +24,15 @@ const ApiForm = () => {
   const [offset, setOffset] = useState(0);
   const [limit, setLimit] = useState(20);
   const [result, setResult] = useState(null);
+  const [presets, setPresets] = useState({});
 
-  const presets = {
-    preset1: [
-      { type: 'nft', chain: 'ethereum', contractAddress: '0x1234...' },
-      { type: 'erc20', chain: 'ethereum', contractAddress: '0x5678...' },
-      // 他のプリセットデータを追加
-    ],
-  };
+  useEffect(() => {
+    // プリセットJSONを読み込む
+    fetch('/path/to/presets.json')
+      .then(response => response.json())
+      .then(data => setPresets(data))
+      .catch(error => console.error('Error loading presets:', error));
+  }, []);
 
   const toggleFields = (type) => {
     setChain('');
@@ -94,6 +95,8 @@ const ApiForm = () => {
       const response = await fetch(url);
       const data = await response.json();
       setResult(data);
+      console.log(transformData(data, type)); // 追加
+
     } catch (error) {
       console.error('Error:', error);
       setResult({ error: error.message });
@@ -102,9 +105,9 @@ const ApiForm = () => {
 
   const fetchPresetData = async (preset) => {
     const results = [];
-    for (const { type, chain, contractAddress, symbol, collectionSlug } of presets[preset]) {
+    for (const presetData of presets[preset]) {
       let url = new URL('https://data-api2024.azurewebsites.net/info');
-      const params = { type, chain, contractAddress, symbol, collectionSlug };
+      const params = { type: preset, ...presetData };
       Object.keys(params).forEach(key => {
         if (params[key]) url.searchParams.append(key, params[key]);
       });
@@ -126,89 +129,84 @@ const ApiForm = () => {
   };
 
   const transformData = (data, type) => {
-    if (type === 'collections') {
-      const collection = data.collections[0];
+    if (type === 'collections' && data.collections) {
+      const collection = data.collections[0] || {};
       return {
-        "トークン名/コレクション名": collection.name || "N/A",
-        "シンボル": collection.symbol || "N/A",
-        "現在価格": collection.floorAsk?.price?.usd || "N/A",
-        "時価総額": collection.market_cap || "N/A",
-        "24時間取引高": collection.volume?.["1day"] || "N/A",
-        "発行量": collection.tokenCount || "N/A",
-        "最大供給量": collection.max_supply || "N/A",
-        "ホルダー数": collection.ownerCount || "N/A",
-        "取引回数": collection.trade_count || "N/A",
+        "トークン名/コレクション名": collection.name || "－",
+        "シンボル": collection.symbol || "－",
+        "現在価格": collection.floorAsk?.price?.usd || "－",
+        "時価総額": collection.market_cap || "－",
+        "24時間取引高": collection.volume?.["1day"] || "－",
+        "発行量": collection.tokenCount || "－",
+        "最大供給量": collection.max_supply || "－",
+        "ホルダー数": collection.ownerCount || "－",
+        "取引回数": collection.trade_count || "－",
         "価格変動": {
-          "24時間": collection.floorSaleChange?.["1day"] || "N/A",
-          "7日間": collection.floorSaleChange?.["7day"] || "N/A",
-          "30日間": collection.floorSaleChange?.["30day"] || "N/A",
+          "24時間": collection.floorSaleChange?.["1day"] || "－",
+          "7日間": collection.floorSaleChange?.["7day"] || "－",
+          "30日間": collection.floorSaleChange?.["30day"] || "－",
         },
-        "買い圧・売り圧": collection.order_book || "N/A",
-        "主要取引所": collection.exchanges || "N/A",
-        "デベロッパー活動": collection.developer_activity || "N/A",
-        "コミュニティエンゲージメント": collection.community_engagement || "N/A",
-        "対USDTの金額": collection.price_usdt || "N/A",
-        "対日本円": collection.price_jpy || "N/A",
-        "フロアプライス": collection.floorAsk?.price?.usd || "N/A",
-        "24時間の売買数及び売上高": collection.sales_volume_24h || "N/A",
-        "マーケットキャップ": collection.market_cap || "N/A",
-        "前日差（フロア価格）": collection.floor_price_change_24h || "N/A",
-        "供給数": collection.tokenCount || "N/A",
-        "所有者数": collection.ownerCount || "N/A",
-        "リスト数": collection.list_count || "N/A",
+        "買い圧・売り圧": collection.order_book || "－",
+        "主要取引所": collection.exchanges || "－",
+        "デベロッパー活動": collection.developer_activity || "－",
+        "コミュニティエンゲージメント": collection.community_engagement || "－",
+        "対USDTの金額": collection.price_usdt || "－",
+        "対日本円": collection.price_jpy || "－",
+        "フロアプライス": collection.floorAsk?.price?.usd || "－",
+        "24時間の売買数及び売上高": collection.sales_volume_24h || "－",
+        "マーケットキャップ": collection.market_cap || "－",
+        "前日差（フロア価格）": collection.floor_price_change_24h || "－",
+        "供給数": collection.tokenCount || "－",
+        "所有者数": collection.ownerCount || "－",
+        "リスト数": collection.list_count || "－",
       };
     }
 
     if (type === 'ordinals') {
       return {
-        "コレクションID": data.collectionId || "N/A",
-        "コレクションシンボル": data.collectionSymbol || "N/A",
-        "通貨": data.currency || "N/A",
-        "USDレート": data.currencyUsdRate || "N/A",
-        "フロア価格": data.fp || "N/A",
-        "フロア価格（通貨）": data.fpListingCurrency || "N/A",
-        "フロア価格（値段）": data.fpListingPrice || "N/A",
-        "フロア価格の変動率": data.fpPctChg || "N/A",
-        "画像": data.image || "N/A",
-        "リスト数": data.listedCount || "N/A",
-        "時価総額": data.marketCap || "N/A",
-        "時価総額（USD）": data.marketCapUsd || "N/A",
-        "名前": data.name || "N/A",
-        "保有者数": data.ownerCount || "N/A",
-        "供給数": data.totalSupply || "N/A",
-        "取引量": data.totalVol || "N/A",
-        "取引数": data.txns || "N/A",
-        "取引数の変動率": data.txnsPctChg || "N/A",
-        "ユニーク保有者比率": data.uniqueOwnerRatio || "N/A",
-        "取引量の変動率": data.volPctChg || "N/A"
+        "コレクションID": data.collectionId || "－",
+        "コレクションシンボル": data.collectionSymbol || "－",
+        "通貨": data.currency || "－",
+        "USDレート": data.currencyUsdRate || "－",
+        "フロア価格": data.fp || "－",
+        "フロア価格（通貨）": data.fpListingCurrency || "－",
+        "フロア価格（値段）": data.fpListingPrice || "－",
+        "フロア価格の変動率": data.fpPctChg || "－",
+        "画像": data.image || "－",
+        "リスト数": data.listedCount || "－",
+        "時価総額": data.marketCap || "－",
+        "時価総額（USD）": data.marketCapUsd || "－",
+        "名前": data.name || "－",
+        "保有者数": data.ownerCount || "－",
+        "供給数": data.totalSupply || "－",
+        "取引量": data.totalVol || "－",
+        "取引数": data.txns || "－",
+        "取引数の変動率": data.txnsPctChg || "－",
+        "ユニーク保有者比率": data.uniqueOwnerRatio || "－",
+        "取引量の変動率": data.volPctChg || "－"
       };
     }
 
     if (type === 'brc20') {
-      const marketData = data.market_data || {};
-      return {
-        "トークン名": data.name || "N/A",
-        "シンボル": data.symbol || "N/A",
-        "現在価格": marketData.current_price?.usd || "N/A",
-        "時価総額": marketData.market_cap?.usd || "N/A",
-        "24時間取引高": marketData.total_volume?.usd || "N/A",
-        "発行量": marketData.circulating_supply || "N/A",
-        "最大供給量": marketData.max_supply || "N/A",
-        "ホルダー数": data.community_data?.reddit_subscribers || "N/A",
-        "取引回数": data.tickers?.length || "N/A",
-        "価格変動": {
-          "24時間": marketData.price_change_percentage_24h || "N/A",
-          "7日間": marketData.price_change_percentage_7d || "N/A",
-          "30日間": marketData.price_change_percentage_30d || "N/A",
-        },
-        "買い圧・売り圧": data.tickers?.[0]?.bid_ask_spread_percentage || "N/A",
-        "主要取引所": data.tickers?.[0]?.market?.name || "N/A",
-        "デベロッパー活動": data.developer_data?.commit_count_4_weeks || "N/A",
-        "コミュニティエンゲージメント": data.community_data?.twitter_followers || "N/A",
-        "対USDTの金額": marketData.current_price?.usdt || "N/A",
-        "対日本円": marketData.current_price?.jpy || "N/A",
-      };
-    }
+        return {
+            "トークン名": data.name || "－",
+            "シンボル": data.symbol || "－",
+            "現在価格": data.market_data?.current_price?.usd ? `$${data.market_data.current_price.usd.toLocaleString()}` : "－",
+            "時価総額": data.market_data?.market_cap?.usd ? `$${data.market_data.market_cap.usd.toLocaleString()}` : "－",
+            "24時間取引高": data.market_data?.total_volume?.usd ? `$${data.market_data.total_volume.usd.toLocaleString()}` : "－",
+            "発行量": data.market_data?.circulating_supply ? data.market_data.circulating_supply.toLocaleString() : "－",
+            "最大供給量": data.market_data?.max_supply ? data.market_data.max_supply.toLocaleString() : "－",
+            "取引回数": data.tickers?.length ? data.tickers.length.toLocaleString() : "－",
+            "24時間価格変動率": data.market_data?.price_change_percentage_24h_in_currency?.usd ? `${data.market_data.price_change_percentage_24h_in_currency.usd.toFixed(2)}%` : "－",
+            "7日間価格変動率": data.market_data?.price_change_percentage_7d_in_currency?.usd ? `${data.market_data.price_change_percentage_7d_in_currency.usd.toFixed(2)}%` : "－",
+            "30日間価格変動率": data.market_data?.price_change_percentage_30d_in_currency?.usd ? `${data.market_data.price_change_percentage_30d_in_currency.usd.toFixed(2)}%` : "－",
+            "買い圧・売り圧": data.tickers?.[0]?.bid_ask_spread_percentage ? `${data.tickers[0].bid_ask_spread_percentage.toFixed(2)}%` : "－",
+            "主要取引所": data.tickers?.[0]?.market?.name || "－",
+            "対USDT価格": data.tickers?.[0]?.converted_last?.usd ? `$${data.tickers[0].converted_last.usd.toLocaleString()}` : "－",
+            "総取引高 (BTC)": data.market_data?.total_volume?.btc ? `${data.market_data.total_volume.btc.toLocaleString()} BTC` : "－",
+            "総取引高 (ETH)": data.market_data?.total_volume?.eth ? `${data.market_data.total_volume.eth.toLocaleString()} ETH` : "－",
+          };
+        }
 
     return data;
   };
@@ -360,8 +358,9 @@ const ApiForm = () => {
             labelId="preset-label"
             onChange={e => handlePresetSelect(e.target.value)}
           >
-            <MenuItem value="preset1">プリセット①</MenuItem>
-            {/* 他のプリセットも追加 */}
+            {Object.keys(presets).map(preset => (
+              <MenuItem key={preset} value={preset}>{preset}</MenuItem>
+            ))}
           </Select>
         </FormControl>
 
@@ -380,12 +379,12 @@ const ApiForm = () => {
 
       <Typography variant="h2">Result:</Typography>
       {result && Array.isArray(result) ? (
-        result.map((res, index) => (
-          <DataDisplay key={index} data={transformData(res, type)} />
-        ))
-      ) : (
-        result && <DataDisplay data={transformData(result, type)} />
-      )}
+    result.map((res, index) => (
+      <DataDisplay key={index} data={transformData(res, type)} type={type} />
+            ))
+        ) : (
+            result && <DataDisplay data={transformData(result, type)} type={type} />
+        )}
     </Box>
   );
 };

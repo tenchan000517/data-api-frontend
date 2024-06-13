@@ -3,6 +3,9 @@ import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
 import html2canvas from 'html2canvas';
 
 const DataDisplay = ({ data, type, isPreset, chain }) => {
+  console.log('DataDisplay - isPreset:', isPreset);
+  console.log('DataDisplay - data:', data);
+  console.log('DataDisplay - chain:', chain);
   const tableRef = useRef(null);
 
   const getPriceChangeKeys = (type) => {
@@ -56,7 +59,7 @@ const DataDisplay = ({ data, type, isPreset, chain }) => {
       '取引量の変動率': '#3CB371',
       'リスト率': '#2E8B57',
     };
-    return isHeader ? colorMap[key] || '#4974FF' : 'white';
+    return isHeader ? colorMap[key] || '#4974FF' : colorMap[key] || 'white';
   };
 
   const handleExportClick = () => {
@@ -91,7 +94,7 @@ const DataDisplay = ({ data, type, isPreset, chain }) => {
 
     return (
       <TableContainer component={Paper}>
-        <Table sx={{ tableLayout: 'fixed' }}>
+        <Table>
           <TableHead>
             <TableRow>
               {keys.map((key) => (
@@ -105,8 +108,7 @@ const DataDisplay = ({ data, type, isPreset, chain }) => {
                     borderRadius: '10px',
                     color: '#FFFFFF',
                     borderBottom: 'none',
-                    padding: '12px',
-                    width: '150px', // 固定幅を設定
+                    padding: '12px', // パディングを12pxに変更
                   }}
                 >
                   {key}
@@ -134,8 +136,7 @@ const DataDisplay = ({ data, type, isPreset, chain }) => {
                           : 'red'
                         : 'inherit',
                       borderBottom: '1px solid #e0e0e0',
-                      padding: '12px',
-                      width: '150px', // 固定幅を設定
+                      padding: '12px', // パディングを12pxに変更
                     }}
                   >
                     {priceChangeKeys.includes(key) && typeof row[key] === 'string' && row[key] !== "－"
@@ -176,7 +177,7 @@ const DataDisplay = ({ data, type, isPreset, chain }) => {
 
     return (
       <TableContainer component={Paper}>
-        <Table sx={{ tableLayout: 'fixed' }}>
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell align="center" sx={{ fontWeight: 'bold', fontSize: '0.875rem', backgroundColor: '#00e5ff', borderRadius: '10px', color: '#FFFFFF', padding: '12px' }}>項目</TableCell>
@@ -186,7 +187,7 @@ const DataDisplay = ({ data, type, isPreset, chain }) => {
           <TableBody>
             {rows.map((row, index) => (
               <TableRow key={index}>
-                <TableCell align="left" sx={{ fontWeight: 'bold', padding: '12px' }}>{row.label}</TableCell>
+                <TableCell align="left" sx={{ fontWeight: 'bold', backgroundColor: getCellColor(row.label), padding: '12px' }}>{row.label}</TableCell>
                 <TableCell align="right" sx={{ fontWeight: 'bold', padding: '12px' }}>{typeof row.value === 'object' ? JSON.stringify(row.value) : row.value}</TableCell>
               </TableRow>
             ))}
@@ -224,17 +225,17 @@ const DataDisplay = ({ data, type, isPreset, chain }) => {
               renderSingleCollectionData()
             ) : (
               <TableContainer component={Paper} sx={{ '& .MuiTable-root': { borderCollapse: 'separate', borderSpacing: '0 8px' } }}>
-                <Table sx={{ tableLayout: 'fixed' }}>
+                <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell align="center" sx={{ fontWeight: 'bold', fontSize: '0.875rem', backgroundColor: '#00e5ff', borderRadius: '10px', color: '#FFFFFF', padding: '12px', width: '150px' }}>項目</TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 'bold', fontSize: '0.875rem', backgroundColor: '#00e5ff', borderRadius: '10px', color: '#FFFFFF', padding: '12px', width: '150px' }}>値</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 'bold', fontSize: '0.875rem', backgroundColor: '#00e5ff', borderRadius: '10px', color: '#FFFFFF', padding: '12px' }}>項目</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 'bold', fontSize: '0.875rem', backgroundColor: '#00e5ff', borderRadius: '10px', color: '#FFFFFF', padding: '12px' }}>値</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {data && Object.entries(data).map(([key, value]) => (
                       <TableRow key={key}>
-                        <TableCell align="left" sx={{ fontWeight: 'bold', padding: '12px' }}>{key}</TableCell>
+                        <TableCell align="left" sx={{ fontWeight: 'bold', backgroundColor: getCellColor(key), padding: '12px' }}>{key}</TableCell>
                         <TableCell align="right" sx={{ fontWeight: 'bold', padding: '12px' }}>{typeof value === 'object' ? JSON.stringify(value) : value}</TableCell>
                       </TableRow>
                     ))}

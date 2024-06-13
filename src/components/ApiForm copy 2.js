@@ -174,6 +174,7 @@ const ApiForm = () => {
           "1DAY Volume": item.market_data?.total_volume?.usd ? `$${item.market_data.total_volume.usd.toLocaleString()}` : "－",
           "供給数": item.market_data?.max_supply ? item.market_data.max_supply.toLocaleString() : "－",
           "1DAY": item.market_data?.price_change_percentage_24h_in_currency?.usd ? `${item.market_data.price_change_percentage_24h_in_currency.usd.toFixed(2)}%` : "－",
+        //   "1WEEK": item.market_data?.price_change_percentage_7d_in_currency?.usd ? `${item.market_data.price_change_percentage_7d_in_currency.usd.toFixed(2)}%` : "－",
           "1MONTH": item.market_data.price_change_percentage_30d_in_currency?.usd ? `${item.market_data.price_change_percentage_30d_in_currency.usd.toFixed(2)}%` : "－",
           "買い圧・売り圧": item.tickers?.[0]?.bid_ask_spread_percentage ? `${item.tickers[0].bid_ask_spread_percentage.toFixed(2)}%` : "－",
           "対USDT価格": item.tickers?.[0]?.converted_last?.usd ? `$${item.tickers[0].converted_last.usd.toLocaleString()}` : "－",
@@ -187,12 +188,7 @@ const ApiForm = () => {
 
   return (
     <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <img src="/logo552.png" alt="logo" style={{ width: '50px', height: '50px', marginRight: '10px' }} />
-        <Typography variant="h4" sx={{ fontWeight: 'bold', fontFamily: 'Arial, sans-serif' }}>
-          ZERO to ONE WEB3 Market Informations ∞
-        </Typography>
-      </Box>
+      <Typography variant="h1">ZERO to ONE WEB3 Market Informations</Typography>
       <FormControl fullWidth margin="normal">
         <InputLabel id="type-label">Type</InputLabel>
         <Select
@@ -219,11 +215,8 @@ const ApiForm = () => {
         <Brc20Form onFetchData={(fetchFunc) => handleFetchData(fetchFunc, true)} loading={loading} presets={presetsData} />
       )}
 
-      {result ? (
+      {result && (
         <DataDisplay data={transformData(result, type)} type={type} isPreset={isPreset} chain={chain} />
-      ) : (
-        // デフォルトのヘッダーを表示して列幅を固定
-        <DataDisplay data={[]} type={type} isPreset={isPreset} chain={chain} />
       )}
     </Box>
   );

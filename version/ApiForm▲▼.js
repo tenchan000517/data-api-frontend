@@ -268,7 +268,7 @@ const ApiForm = () => {
         "取引回数": data.tickers?.length ? data.tickers.length.toLocaleString() : "－",
         "24時間価格変動率": data.market_data?.price_change_percentage_24h_in_currency?.usd ? `${data.market_data.price_change_percentage_24h_in_currency.usd.toFixed(2)}%` : "－",
         "7日間価格変動率": data.market_data?.price_change_percentage_7d_in_currency?.usd ? `${data.market_data.price_change_percentage_7d_in_currency.usd.toFixed(2)}%` : "－",
-        "30日間価格変動率": data.market_data?.price_change_percentage_30d_in_currency?.usd ? `${data.market_data.price_change_percentage_30d_in_currency?.usd?.toFixed(2)}%` : "－",
+        "30日間価格変動率": data.market_data.price_change_percentage_30d_in_currency?.usd ? `${data.market_data.price_change_percentage_30d_in_currency.usd.toFixed(2)}%` : "－",
         "買い圧・売り圧": data.tickers?.[0]?.bid_ask_spread_percentage ? `${data.tickers[0].bid_ask_spread_percentage.toFixed(2)}%` : "－",
         "主要取引所": data.tickers?.[0]?.market?.name || "－",
         "対USDT価格": data.tickers?.[0]?.converted_last?.usd ? `$${data.tickers[0].converted_last.usd.toLocaleString()}` : "－",

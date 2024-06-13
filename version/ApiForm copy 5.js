@@ -146,6 +146,17 @@ const ApiForm = () => {
     setResult(data);
   };
 
+  const getExchangeRate = async () => {
+    try {
+      const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      const data = await response.json();
+      return data.rates.JPY;
+    } catch (error) {
+      console.error('Error fetching exchange rate:', error);
+      return null;
+    }
+  };
+
   const transformData = (data, type) => {
     if (type === 'collections' && data.collections) {
       const collection = data.collections[0] || {};

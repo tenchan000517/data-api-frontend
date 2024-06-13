@@ -1,97 +1,51 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-} from '@mui/material';
-import DataDisplay from './DataDisplay';
-import presetsData from './presets.json';
-import NftForm from './NftForm';
-import OrdinalsForm from './OrdinalsForm';
-import Brc20Form from './Brc20Form';
+import React, { useState, useEffect } from 'react';
+import { Box, Button, Typography } from '@mui/material';
 
-const ApiForm = () => {
-  const [type, setType] = useState('nft');
-  const [result, setResult] = useState(null);
+const GoogleSheetForm = () => {
   const [loading, setLoading] = useState(false);
-  const [isPreset, setIsPreset] = useState(false);
-  const [chain, setChain] = useState('ethereum');  // 初期チェーン名を設定
+  const [result, setResult] = useState(null);
 
-  const chainIdToName = (chainId) => {
-    switch (chainId) {
-      case 1:
-        return 'ethereum';
-      case 137:
-        return 'polygon';
-      case 250:
-        return 'fantom';
-      case 43114:
-        return 'avalanche';
-      // 他のチェーンIDに対するケースを追加
-      default:
-        return 'ethereum';
-    }
-  };
-
-  const handleTypeChange = (event) => {
-    setType(event.target.value);
-    setResult(null);
-  };
-
-  const handleFetchData = async (fetchFunction, presetFlag = false) => {
-    console.log('handleFetchData - presetFlag:', presetFlag);
-
+  const fetchAndWriteData = async (type) => {
     setLoading(true);
-    setIsPreset(presetFlag);
-    console.log('handleFetchData - isPreset set to:', presetFlag);
-
     try {
-      const data = await fetchFunction();
-      console.log('Fetched data:', data);
+      // データ取得ロジック
+      const data = await fetch(`/api/info?type=${type}`);
+      const jsonData = await data.json();
 
-      setResult(data);
-      if (data.collections && data.collections.length > 0) {
-        const chainId = data.collections[0].chainId;
-        const chainName = chainIdToName(chainId);
-        setChain(chainName);
-        console.log('Fetched chain:', chainName);
-      }
+      // タイムスタンプを追加
+      const timestamp = new Date().toISOString();
+      const transformedData = transformData(jsonData, type).map((item) => ({
+        Timestamp: timestamp,
+        ...item,
+      }));
+
+      // Google Sheetsに書き込み
+      const payload = {
+        requests: [
+          {
+            spreadsheetId: process.env.REACT_APP_SPREADSHEET_ID,
+            sheetName: type === 'nft' ? 'NFT' : type === 'ordinals' ? 'Ordinals' : 'BRC20',
+            range: 'A1',
+            values: transformedData,
+          },
+        ],
+      };
+
+      const response = await fetch('/api/googleSheets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+      setResult(result);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error:', error);
       setResult({ error: error.message });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getCurrency = (type, item) => {
-    switch (type) {
-      case 'collections':
-      case 'nft':
-        return item.floorAsk?.price?.currency?.symbol || getCurrencyFromChain(item.chain || 'ethereum');
-      case 'ordinals':
-        return item.currency || item.fpListingCurrency || 'BTC';
-      case 'brc20':
-        return 'USD';
-      default:
-        return '';
-    }
-  };
-
-  const getCurrencyFromChain = (chain) => {
-    switch (chain.toLowerCase()) {
-      case 'polygon':
-        return 'MATIC';
-      case 'solana':
-        return 'SOL';
-      case 'ethereum':
-        return 'ETH';
-      // 他のチェーン名に対するケースを追加
-      default:
-        return 'ETH';
     }
   };
 
@@ -185,48 +139,50 @@ const ApiForm = () => {
     return data;
   };
 
+  // 初期読み込み時にデータ取得と書き込みを行う
+  useEffect(() => {
+    const types = ['nft', 'ordinals', 'brc20'];
+    types.forEach((type) => {
+      fetchAndWriteData(type);
+    });
+  }, []);
+
   return (
-    <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <img src="/logo552.png" alt="logo" style={{ width: '50px', height: '50px', marginRight: '10px' }} />
-        <Typography variant="h4" sx={{ fontWeight: 'bold', fontFamily: 'Arial, sans-serif' }}>
-          ZERO to ONE WEB3 Market Informations ∞
-        </Typography>
-      </Box>
-      <FormControl fullWidth margin="normal">
-        <InputLabel id="type-label">Type</InputLabel>
-        <Select
-          labelId="type-label"
-          value={type}
-          onChange={handleTypeChange}
-        >
-          <MenuItem value="nft">NFT</MenuItem>
-          <MenuItem value="ordinals">Ordinals</MenuItem>
-          <MenuItem value="brc20">BRC20</MenuItem>
-        </Select>
-      </FormControl>
-
-      {type === 'nft' && (
-        <NftForm onFetchData={(fetchFunc, isPreset) => {
-          console.log('NftForm - onFetchData called with isPreset:', isPreset);
-          handleFetchData(fetchFunc, isPreset);
-        }} loading={loading} />
-      )}
-      {type === 'ordinals' && (
-        <OrdinalsForm onFetchData={(fetchFunc) => handleFetchData(fetchFunc, true)} loading={loading} />
-      )}
-      {type === 'brc20' && (
-        <Brc20Form onFetchData={(fetchFunc) => handleFetchData(fetchFunc, true)} loading={loading} presets={presetsData} />
-      )}
-
-      {result ? (
-        <DataDisplay data={transformData(result, type)} type={type} isPreset={isPreset} chain={chain} />
-      ) : (
-        // デフォルトのヘッダーを表示して列幅を固定
-        <DataDisplay data={[]} type={type} isPreset={isPreset} chain={chain} />
+    <Box>
+      <Typography variant="h4">Google Sheets Data Entry</Typography>
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={() => fetchAndWriteData('nft')} 
+        disabled={loading}
+      >
+        Fetch and Write NFT Data
+      </Button>
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={() => fetchAndWriteData('ordinals')} 
+        disabled={loading}
+      >
+        Fetch and Write Ordinals Data
+      </Button>
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={() => fetchAndWriteData('brc20')} 
+        disabled={loading}
+      >
+        Fetch and Write BRC20 Data
+      </Button>
+      {loading && <Typography variant="body1">Loading...</Typography>}
+      {result && (
+        <Box mt={2}>
+          <Typography variant="h6">Result:</Typography>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </Box>
       )}
     </Box>
   );
 };
 
-export default ApiForm;
+export default GoogleSheetForm;
