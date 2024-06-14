@@ -1,10 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import App from './App';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
+ReactDOM.render(
+  <LocalizationProvider dateAdapter={AdapterDateFns}>
     <App />
-  </React.StrictMode>
+  </LocalizationProvider>,
+  document.getElementById('root')
 );
